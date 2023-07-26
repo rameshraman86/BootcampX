@@ -7,3 +7,4 @@ GROUP BY
   day
 ORDER BY
   day;
+  
