@@ -8,27 +8,27 @@ const pool = new Pool({
   database: 'rameshraman'
 });
 
+const queryString = `
+  SELECT students.id as student_id, students.name as name, cohorts.name as cohort
+  FROM students
+  JOIN cohorts ON cohorts.id = cohort_id
+  WHERE cohorts.name LIKE $1
+  LIMIT $2;
+  `;
 
-// const input = process.argv.slice(2);
-pool.query(`
-    SELECT 
-      s.id, 
-      s.name as student, 
-      c.name as cohort
-    FROM 
-      students as s
-    JOIN 
-      cohorts as c ON c.id = s.cohort_id
-    WHERE 
-      c.name LIKE '${process.argv[2]}%'
-    LIMIT 
-      ${process.argv[3] || 5 } ;
-`)
-  .then(res => {
+const cohortName = process.argv[2];
+const limit = process.argv[3] || 5;
+// Store all potentially malicious values in an array.
+const values = [`%${cohortName}%`, limit];
+
+pool.query(queryString, values)
+  .then( 
+    res => {
     res.rows.forEach(user => {
-      console.log(`${user.student} has an id of ${user.id} and was in cohort ${user.cohort}`);
+      console.log(`${user.name} has an id of ${user.student_id} and was in cohort ${user.cohort}`);
     });
   })
+
   .catch(err => console.error(`error: `, err.stack));
 
 
